@@ -22,10 +22,15 @@ class LoginViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+//        do {
+//            try Auth.auth().signOut()
+//        } catch {
+//            print("Error while signing out")
+//        }
         authOnChangeListener = Auth.auth().addStateDidChangeListener{ auth, user in
             if user != nil {
                 self.currentUser = user
-                // move to nextscreen
+                self.navigateToPasswordsScreen()
             }
         }
     }
@@ -60,7 +65,11 @@ class LoginViewController: UIViewController {
 //        let password = self.loginView.passwordField.text!
         
 //        self.login(email: email, password: password)
+    }
+    
+    func navigateToPasswordsScreen() {
         let passwordsViewController = PasswordsViewController()
+        passwordsViewController.currentUser = self.currentUser
         self.navigationController?.pushViewController(passwordsViewController, animated: true)
     }
     

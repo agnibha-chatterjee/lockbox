@@ -11,12 +11,11 @@ import FirebaseAuth
 import CryptoKit
 
 extension RegistrationViewController {
-    
     func registerNewAccount(name: String, email: String, password: String) {
         Auth.auth().createUser(withEmail: email, password: password, completion: { result, error in
             if error == nil {
                 self.currentUser = result?.user
-                let userID = self.currentUser!.uid
+                _ = self.currentUser!.uid
                 self.setUserNameInFirebaseAuth(name: name)
             }
             else {
@@ -46,7 +45,7 @@ extension RegistrationViewController {
             let userCollection = database.collection("users")
             
             userCollection.document(userEmail).setData(data) { error in
-                if let error = error {
+                if error != nil {
                 } else {
                     userCollection.getDocuments { (querySnapshot, error) in
                         if let error = error {
@@ -54,7 +53,7 @@ extension RegistrationViewController {
                         } else {
                             userCollectionCount = querySnapshot?.documents.count ?? 0
                             if userCollectionCount > 1 {
-                                var userEmailList = querySnapshot?.documents.compactMap { document in
+                                _ = querySnapshot?.documents.compactMap { document in
                                     document.data()["email"] as? String
                                 } ?? []
                             }
@@ -63,8 +62,9 @@ extension RegistrationViewController {
                 }
             }
 //            hideActivityIndicator()
-//            self.navigationController?.popViewController(animated: true)
-            print("All good!")
+            let passwordsViewController = PasswordsViewController()
+            passwordsViewController.currentUser = self.currentUser
+            self.navigationController?.pushViewController(passwordsViewController, animated: true)
         }
     }
     
