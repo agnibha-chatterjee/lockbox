@@ -20,20 +20,6 @@ class LoginViewController: UIViewController {
         self.view = loginView
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-//        do {
-//            try Auth.auth().signOut()
-//        } catch {
-//            print("Error while signing out")
-//        }
-        authOnChangeListener = Auth.auth().addStateDidChangeListener{ auth, user in
-            if user != nil {
-                self.currentUser = user
-                self.navigateToPasswordsScreen()
-            }
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,8 +27,21 @@ class LoginViewController: UIViewController {
         self.title = "Login"
         self.navigationItem.backButtonTitle = ""
         
+//                do {
+//                    try Auth.auth().signOut()
+//                } catch {
+//                    print("Error while signing out")
+//                }
+        
         loginView.registerBtn.addTarget(self, action: #selector(onClickRegisterBtn), for: .touchUpInside)
         loginView.loginBtn.addTarget(self, action: #selector(onClickLoginBtn), for: .touchUpInside)
+        
+        authOnChangeListener = Auth.auth().addStateDidChangeListener{ auth, user in
+            if user != nil {
+                self.currentUser = user
+                self.navigateToPasswordsScreen()
+            }
+        }
         
     }
     
@@ -61,10 +60,18 @@ class LoginViewController: UIViewController {
             return
         }
         
-//        let email = self.loginView.emailField.text!
-//        let password = self.loginView.passwordField.text!
+        let email = self.loginView.emailField.text!
+        let password = self.loginView.passwordField.text!
         
-//        self.login(email: email, password: password)
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
+            guard let strongSelf = self else { return }
+            if let error = error {
+                strongSelf.showAlert(message: "Incorrect email/password")
+                return
+            }
+            strongSelf.currentUser = authResult?.user
+            strongSelf.navigateToPasswordsScreen()
+        }
     }
     
     func navigateToPasswordsScreen() {

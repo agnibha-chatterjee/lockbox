@@ -22,5 +22,15 @@ class PasswordsViewController: UIViewController {
         
         title = "All Passwords"
         
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logout))
+    }
+
+    @objc func logout() {
+        do {
+            try Auth.auth().signOut()
+            self.navigationController?.popViewController(animated: true)
+        } catch {
+            print("Error signing out: \(error.localizedDescription)")
+        }
     }
 }
