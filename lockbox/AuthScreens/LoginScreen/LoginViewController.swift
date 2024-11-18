@@ -84,6 +84,7 @@ class LoginViewController: UIViewController {
     }
     
     func navigateToPasswordsScreen() {
+        resetFields()
         let passwordsViewController = PasswordsViewController()
         passwordsViewController.currentUser = self.currentUser
         self.navigationController?.pushViewController(passwordsViewController, animated: true)
