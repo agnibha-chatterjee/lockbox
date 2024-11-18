@@ -61,10 +61,15 @@ extension RegistrationViewController {
                     }
                 }
             }
-//            hideActivityIndicator()
-            let passwordsViewController = PasswordsViewController()
-            passwordsViewController.currentUser = self.currentUser
-            self.navigationController?.pushViewController(passwordsViewController, animated: true)
+            
+            if !self.hasNavigated {
+                self.hasNavigated = true
+                self.delegate?.hasNavigated = true
+                self.resetFields()
+                let passwordsViewController = PasswordsViewController()
+                passwordsViewController.currentUser = self.currentUser
+                self.navigationController?.pushViewController(passwordsViewController, animated: true)
+            }
         }
     }
     

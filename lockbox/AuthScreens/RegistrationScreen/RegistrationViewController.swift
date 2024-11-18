@@ -13,6 +13,9 @@ class RegistrationViewController: UIViewController {
     var registrationView = RegistrationView()
     var currentUser: FirebaseAuth.User?
     let database = Firestore.firestore()
+    var hasNavigated = false
+    
+    var delegate: LoginViewController?
     
     override func loadView() {
         self.view = registrationView
@@ -40,6 +43,7 @@ class RegistrationViewController: UIViewController {
     }
     
     func resetFields() {
+        self.registrationView.nameField.text = ""
         self.registrationView.emailField.text = ""
         self.registrationView.passwordField.text = ""
     }

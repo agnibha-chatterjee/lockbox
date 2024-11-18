@@ -52,6 +52,7 @@ class LoginViewController: UIViewController {
     
     @objc func onClickRegisterBtn() {
         let registraionViewController = RegistrationViewController()
+        registraionViewController.delegate = self
         self.navigationController?.pushViewController(registraionViewController, animated: true)
     }
     
