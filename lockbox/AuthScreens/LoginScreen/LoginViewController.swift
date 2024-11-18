@@ -15,6 +15,7 @@ class LoginViewController: UIViewController {
 
     var currentUser: FirebaseAuth.User?
     var authOnChangeListener: AuthStateDidChangeListenerHandle?
+    var hasNavigated = false
     
     override func loadView() {
         self.view = loginView
@@ -36,10 +37,14 @@ class LoginViewController: UIViewController {
         loginView.registerBtn.addTarget(self, action: #selector(onClickRegisterBtn), for: .touchUpInside)
         loginView.loginBtn.addTarget(self, action: #selector(onClickLoginBtn), for: .touchUpInside)
         
-        authOnChangeListener = Auth.auth().addStateDidChangeListener{ auth, user in
+        authOnChangeListener = Auth.auth().addStateDidChangeListener { auth, user in
             if user != nil {
                 self.currentUser = user
-                self.navigateToPasswordsScreen()
+                
+                if !self.hasNavigated {
+                    self.hasNavigated = true
+                    self.navigateToPasswordsScreen()
+                }
             }
         }
         
@@ -70,7 +75,11 @@ class LoginViewController: UIViewController {
                 return
             }
             strongSelf.currentUser = authResult?.user
-            strongSelf.navigateToPasswordsScreen()
+            
+            if !strongSelf.hasNavigated {
+                strongSelf.hasNavigated = true
+                strongSelf.navigateToPasswordsScreen()
+            }
         }
     }
     
