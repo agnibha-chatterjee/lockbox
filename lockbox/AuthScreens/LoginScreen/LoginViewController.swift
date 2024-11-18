@@ -6,14 +6,28 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
 
 class LoginViewController: UIViewController {
     
     var loginView = LoginView()
-    let defaults = UserDefaults.standard
+
+    var currentUser: FirebaseAuth.User?
+    var authOnChangeListener: AuthStateDidChangeListenerHandle?
     
     override func loadView() {
         self.view = loginView
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        authOnChangeListener = Auth.auth().addStateDidChangeListener{ auth, user in
+            if user != nil {
+                self.currentUser = user
+                // move to nextscreen
+            }
+        }
     }
     
     override func viewDidLoad() {
@@ -25,11 +39,10 @@ class LoginViewController: UIViewController {
         loginView.registerBtn.addTarget(self, action: #selector(onClickRegisterBtn), for: .touchUpInside)
         loginView.loginBtn.addTarget(self, action: #selector(onClickLoginBtn), for: .touchUpInside)
         
-        checkIfUserIsAuthenticated()
     }
     
     @objc func onClickRegisterBtn() {
-        let registraionViewController = RegistratonViewController()
+        let registraionViewController = RegistrationViewController()
         self.navigationController?.pushViewController(registraionViewController, animated: true)
     }
     
@@ -43,10 +56,12 @@ class LoginViewController: UIViewController {
             return
         }
         
-        let email = self.loginView.emailField.text!
-        let password = self.loginView.passwordField.text!
+//        let email = self.loginView.emailField.text!
+//        let password = self.loginView.passwordField.text!
         
 //        self.login(email: email, password: password)
+        let passwordsViewController = PasswordsViewController()
+        self.navigationController?.pushViewController(passwordsViewController, animated: true)
     }
     
     func validateEmptyFields() -> Bool {
@@ -87,17 +102,5 @@ class LoginViewController: UIViewController {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Dismiss", style: .default))
         present(alert, animated: true)
-    }
-    
-    func checkIfUserIsAuthenticated() {
-        let savedAccessToken = defaults.string(forKey: "accessToken")
-        
-        if savedAccessToken == nil {
-            return
-        }
-        
-        let accessToken: String = savedAccessToken!
-        
-//        self.getUserDetails(token: accessToken)
     }
 }

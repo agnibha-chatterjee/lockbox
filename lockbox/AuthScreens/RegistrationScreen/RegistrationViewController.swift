@@ -6,11 +6,13 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
 
-class RegistratonViewController: UIViewController {
+class RegistrationViewController: UIViewController {
     var registrationView = RegistrationView()
-    
-    let defaults = UserDefaults.standard
+    var currentUser: FirebaseAuth.User?
+    let database = Firestore.firestore()
     
     override func loadView() {
         self.view = registrationView
@@ -33,7 +35,8 @@ class RegistratonViewController: UIViewController {
         let email = self.registrationView.emailField.text!
         let password = self.registrationView.passwordField.text!
         
-//        self.register(name: name, email: email, password: password)
+        self.registerNewAccount(name: name, email: email, password: password)
+        
     }
     
     func resetFields() {
