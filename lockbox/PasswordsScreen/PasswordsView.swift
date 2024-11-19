@@ -9,30 +9,60 @@ import UIKit
 
 class PasswordsView: UIView {
     
-    var dummyLabel: UILabel!
+    var searchBar: UISearchBar!
+    var tableView: UITableView!
+    var addPasswordButton: UIButton!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         self.backgroundColor = .white
         
-        setupDummyLabel()
+        setupSearchBar()
+        setupTableView()
+        setupAddPasswordButton()
         initConstraints()
     }
     
-    func setupDummyLabel() {
-        dummyLabel = UILabel()
-        dummyLabel.text = "Remove this dummy label when you start!"
-        dummyLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(dummyLabel)
+    func setupSearchBar() {
+        searchBar = UISearchBar()
+        searchBar.placeholder = "Search passwords"
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(searchBar)
+    }
+    
+    func setupTableView() {
+        tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(tableView)
+    }
+    
+    func setupAddPasswordButton() {
+        addPasswordButton = UIButton(type: .system)
+        addPasswordButton.setTitle("+ Add Password", for: .normal)
+        addPasswordButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        addPasswordButton.backgroundColor = .blue
+        addPasswordButton.tintColor = .white
+        addPasswordButton.layer.cornerRadius = 25
+        addPasswordButton.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(addPasswordButton)
     }
     
     func initConstraints() {
         NSLayoutConstraint.activate([
+            searchBar.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
             
-            dummyLabel.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor, constant: 20),
-            dummyLabel.centerXAnchor.constraint(equalTo: self.safeAreaLayoutGuide.centerXAnchor),
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor),
             
+            addPasswordButton.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            addPasswordButton.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            addPasswordButton.widthAnchor.constraint(equalToConstant: 50),
+            addPasswordButton.heightAnchor.constraint(equalToConstant: 50),
         ])
     }
     
