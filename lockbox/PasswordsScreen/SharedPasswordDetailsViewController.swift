@@ -5,18 +5,17 @@
 //  Created by Pranav Raj on 2024-11-19.
 //
 
-//
-//  SharedPasswordDetailsViewController.swift
-//  lockbox
-//
-//  Created by Pranav Raj on 2024-11-19.
-//
+
 
 import UIKit
+import CoreLocation
+import FirebaseFirestore
 
-class SharedPasswordDetailsViewController: UIViewController {
+class SharedPasswordDetailsViewController: UIViewController, CLLocationManagerDelegate {
     
     var sharedPassword: (id: String, website: String, username: String, password: String)?
+    let locationManager = CLLocationManager()
+    let database = Firestore.firestore()
     
     // UI Elements
     let websiteLabel = UILabel()
@@ -33,6 +32,8 @@ class SharedPasswordDetailsViewController: UIViewController {
         setupCopyButton()
         setupConstraints()
         displayPasswordDetails()
+        
+        setupLocationManager()
     }
     
     func setupLabels() {
@@ -95,18 +96,54 @@ class SharedPasswordDetailsViewController: UIViewController {
         passwordLabel.text = "Password: \(sharedPassword.password)"
     }
     
+    func setupLocationManager() {
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+    }
+    
     @objc func onCopyButtonPressed() {
         guard let password = sharedPassword?.password else {
             showAlert(title: "Error", message: "No password to copy.")
             return
         }
         UIPasteboard.general.string = password
+        saveLocation()
         showAlert(title: "Copied", message: "Password copied to clipboard.")
+    }
+    
+    func saveLocation() {
+        guard let passwordID = sharedPassword?.id else { return }
+        locationManager.requestLocation()
+        
+        guard let location = locationManager.location else { return }
+        let latitude = location.coordinate.latitude
+        let longitude = location.coordinate.longitude
+        
+        let newLocation = ["latitude": latitude, "longitude": longitude]
+        database.collection("passwords").document(passwordID).updateData([
+            "locations": FieldValue.arrayUnion([newLocation])
+        ]) { error in
+            if let error = error {
+                print("Error saving location: \(error.localizedDescription)")
+            } else {
+                print("Location saved successfully.")
+            }
+        }
     }
     
     func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
+    }
+    
+    // CLLocationManagerDelegate Methods
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        // Handle location updates if needed
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Failed to get location: \(error.localizedDescription)")
     }
 }

@@ -5,13 +5,6 @@
 //  Created by Pranav Raj on 2024-11-18.
 //
 
-//
-//  AddEditPasswordView.swift
-//  lockbox
-//
-//  Created by Pranav Raj on 2024-11-18.
-//
-
 import UIKit
 
 class AddEditPasswordView: UIView {
