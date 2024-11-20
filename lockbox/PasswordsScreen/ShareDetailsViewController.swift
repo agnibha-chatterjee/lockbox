@@ -5,6 +5,13 @@
 //  Created by Pranav Raj on 2024-11-18.
 //
 
+//
+//  ShareDetailsViewController.swift
+//  lockbox
+//
+//  Created by Pranav Raj on 2024-11-18.
+//
+
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
@@ -31,6 +38,7 @@ class ShareDetailsViewController: UIViewController {
         setupSearchField()
         setupAddUserButton()
         setupSharedUsersTableView()
+        setupConstraints()
         fetchSharedUsers()
     }
     
@@ -57,16 +65,23 @@ class ShareDetailsViewController: UIViewController {
         sharedUsersTableView.register(UITableViewCell.self, forCellReuseIdentifier: "SharedUserCell")
         sharedUsersTableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(sharedUsersTableView)
-        
+    }
+    
+    func setupConstraints() {
         NSLayoutConstraint.activate([
+            // Search field constraints
             searchField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             searchField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             searchField.trailingAnchor.constraint(equalTo: addUserButton.leadingAnchor, constant: -8),
+            searchField.heightAnchor.constraint(equalToConstant: 40),
             
+            // Add user button constraints
             addUserButton.centerYAnchor.constraint(equalTo: searchField.centerYAnchor),
             addUserButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             addUserButton.widthAnchor.constraint(equalToConstant: 100),
+            addUserButton.heightAnchor.constraint(equalToConstant: 40),
             
+            // Table view constraints
             sharedUsersTableView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 16),
             sharedUsersTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             sharedUsersTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -76,15 +91,16 @@ class ShareDetailsViewController: UIViewController {
     
     func fetchSharedUsers() {
         guard let passwordID = password?.id else { return }
-        database.collection("passwords").document(passwordID).collection("shared_logins").getDocuments { [weak self] snapshot, error in
+        database.collection("passwords").document(passwordID).getDocument { [weak self] snapshot, error in
             guard let self = self else { return }
             if let error = error {
                 print("Error fetching shared users: \(error.localizedDescription)")
                 return
             }
-            
-            self.sharedUsers = snapshot?.documents.compactMap { $0.data()["email"] as? String } ?? []
-            self.sharedUsersTableView.reloadData()
+            if let data = snapshot?.data(), let sharedWith = data["sharedWith"] as? [String] {
+                self.sharedUsers = sharedWith
+                self.sharedUsersTableView.reloadData()
+            }
         }
     }
     
@@ -94,56 +110,38 @@ class ShareDetailsViewController: UIViewController {
             return
         }
         
-        // Check if the user is already shared
         if sharedUsers.contains(email) {
             showAlert(title: "Error", message: "\(email) already has access.")
             return
         }
         
-        // Check if the user exists in Firestore
-        database.collection("users").whereField("email", isEqualTo: email).getDocuments { [weak self] snapshot, error in
-            guard let self = self else { return }
-            if let error = error {
-                self.showAlert(title: "Error", message: error.localizedDescription)
-                return
-            }
-            
-            if let documents = snapshot?.documents, !documents.isEmpty {
-                // User exists, share the password
-                self.shareLogin(with: email)
-            } else {
-                self.showAlert(title: "Error", message: "No user found with the email \(email).")
-            }
-        }
-    }
-    
-    func shareLogin(with email: String) {
         guard let passwordID = password?.id else { return }
         
-        let data = ["email": email]
-        database.collection("passwords").document(passwordID).collection("shared_logins").document(email).setData(data) { [weak self] error in
+        database.collection("passwords").document(passwordID).updateData([
+            "sharedWith": FieldValue.arrayUnion([email])
+        ]) { [weak self] error in
             guard let self = self else { return }
             if let error = error {
-                self.showAlert(title: "Error", message: "Failed to share login: \(error.localizedDescription)")
+                self.showAlert(title: "Error", message: "Failed to add user: \(error.localizedDescription)")
                 return
             }
-            
             self.sharedUsers.append(email)
             self.sharedUsersTableView.reloadData()
-            self.showAlert(title: "Success", message: "Login shared successfully with \(email).")
+            self.showAlert(title: "Success", message: "Access granted to \(email).")
         }
     }
     
     func revokeAccess(for email: String) {
         guard let passwordID = password?.id else { return }
         
-        database.collection("passwords").document(passwordID).collection("shared_logins").document(email).delete { [weak self] error in
+        database.collection("passwords").document(passwordID).updateData([
+            "sharedWith": FieldValue.arrayRemove([email])
+        ]) { [weak self] error in
             guard let self = self else { return }
             if let error = error {
-                print("Error revoking access: \(error.localizedDescription)")
+                self.showAlert(title: "Error", message: "Failed to revoke access: \(error.localizedDescription)")
                 return
             }
-            
             self.sharedUsers.removeAll { $0 == email }
             self.sharedUsersTableView.reloadData()
             self.showAlert(title: "Success", message: "Access revoked for \(email).")
@@ -153,17 +151,16 @@ class ShareDetailsViewController: UIViewController {
     @objc func revokeButtonTapped(sender: UIButton) {
         let email = sharedUsers[sender.tag]
         
-        // Show confirmation alert
         let alert = UIAlertController(
             title: "Revoke Access",
             message: "Are you sure you want to revoke access for \(email)?",
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel)) // Cancel button
-        alert.addAction(UIAlertAction(title: "Revoke", style: .destructive, handler: { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Revoke", style: .destructive) { [weak self] _ in
             self?.revokeAccess(for: email)
-        }))
+        })
         
         present(alert, animated: true)
     }
@@ -181,31 +178,19 @@ extension ShareDetailsViewController: UITableViewDelegate, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .default, reuseIdentifier: "SharedUserCell")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "SharedUserCell", for: indexPath)
         let email = sharedUsers[indexPath.row]
         
         cell.textLabel?.text = email
         cell.textLabel?.font = UIFont.systemFont(ofSize: 16)
-        cell.textLabel?.translatesAutoresizingMaskIntoConstraints = false
         
         let revokeButton = UIButton(type: .system)
         revokeButton.setTitle("Revoke", for: .normal)
         revokeButton.setTitleColor(.red, for: .normal)
-        revokeButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         revokeButton.tag = indexPath.row
-        revokeButton.translatesAutoresizingMaskIntoConstraints = false
         revokeButton.addTarget(self, action: #selector(revokeButtonTapped), for: .touchUpInside)
         
-        cell.contentView.addSubview(revokeButton)
-        
-        NSLayoutConstraint.activate([
-            cell.textLabel!.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 16),
-            cell.textLabel!.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor),
-            
-            revokeButton.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -16),
-            revokeButton.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor)
-        ])
-        
+        cell.accessoryView = revokeButton
         return cell
     }
 }

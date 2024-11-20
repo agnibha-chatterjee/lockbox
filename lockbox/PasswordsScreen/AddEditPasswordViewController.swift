@@ -4,6 +4,13 @@
 //
 //  Created by Pranav Raj on 2024-11-18.
 //
+//
+//  AddEditPasswordViewController.swift
+//  lockbox
+//
+//  Created by Pranav Raj on 2024-11-18.
+//
+
 import UIKit
 import FirebaseFirestore
 import FirebaseAuth
@@ -25,6 +32,7 @@ class AddEditPasswordViewController: UIViewController {
         
         self.title = isEditingPassword ? "Edit Password" : "Add Password"
         addEditPasswordView.saveButton.addTarget(self, action: #selector(onSaveButtonPressed), for: .touchUpInside)
+        addEditPasswordView.copyButton.addTarget(self, action: #selector(onCopyButtonPressed), for: .touchUpInside)
         
         if isEditingPassword, let password = passwordToEdit {
             populateFields(password: password)
@@ -83,6 +91,15 @@ class AddEditPasswordViewController: UIViewController {
         }
     }
     
+    @objc func onCopyButtonPressed() {
+        guard let password = addEditPasswordView.passwordField.text, !password.isEmpty else {
+            showAlert(title: "Error", message: "No password to copy.")
+            return
+        }
+        UIPasteboard.general.string = password
+        showAlert(title: "Copied", message: "Password copied to clipboard.")
+    }
+    
     func validateFields() -> Bool {
         guard let website = addEditPasswordView.websiteField.text, !website.isEmpty,
               let username = addEditPasswordView.usernameField.text, !username.isEmpty,
@@ -99,3 +116,4 @@ class AddEditPasswordViewController: UIViewController {
         present(alert, animated: true)
     }
 }
+

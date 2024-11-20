@@ -5,6 +5,13 @@
 //  Created by Pranav Raj on 2024-11-18.
 //
 
+//
+//  AddEditPasswordView.swift
+//  lockbox
+//
+//  Created by Pranav Raj on 2024-11-18.
+//
+
 import UIKit
 
 class AddEditPasswordView: UIView {
@@ -13,6 +20,7 @@ class AddEditPasswordView: UIView {
     var usernameField: UITextField!
     var passwordField: UITextField!
     var saveButton: UIButton!
+    var copyButton: UIButton!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,6 +31,7 @@ class AddEditPasswordView: UIView {
         setupUsernameField()
         setupPasswordField()
         setupSaveButton()
+        setupCopyButton()
         
         initConstraints()
     }
@@ -63,6 +72,17 @@ class AddEditPasswordView: UIView {
         self.addSubview(saveButton)
     }
     
+    func setupCopyButton() {
+        copyButton = UIButton(type: .system)
+        copyButton.setTitle("Copy Password", for: .normal)
+        copyButton.titleLabel?.font = UIFont.systemFont(ofSize: 16)
+        copyButton.backgroundColor = .gray
+        copyButton.tintColor = .white
+        copyButton.layer.cornerRadius = 8
+        copyButton.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(copyButton)
+    }
+    
     func initConstraints() {
         NSLayoutConstraint.activate([
             websiteField.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor, constant: 20),
@@ -81,6 +101,11 @@ class AddEditPasswordView: UIView {
             saveButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             saveButton.widthAnchor.constraint(equalToConstant: 100),
             saveButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            copyButton.topAnchor.constraint(equalTo: saveButton.bottomAnchor, constant: 20),
+            copyButton.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            copyButton.widthAnchor.constraint(equalToConstant: 150),
+            copyButton.heightAnchor.constraint(equalToConstant: 40),
         ])
     }
     

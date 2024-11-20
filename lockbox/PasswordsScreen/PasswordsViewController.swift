@@ -5,6 +5,20 @@
 //  Created by agni on 11/17/24.
 //
 
+//
+//  PasswordsViewController.swift
+//  lockbox
+//
+//  Created by agni on 11/17/24.
+//
+// new version 3 (list item click is workinG()
+//
+//  PasswordsViewController.swift
+//  lockbox
+//
+//  Created by agni on 11/17/24.
+//
+
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
@@ -14,6 +28,7 @@ class PasswordsViewController: UIViewController {
     let passwordsView = PasswordsView()
     var currentUser: FirebaseAuth.User?
     var passwords: [(id: String, website: String, username: String, password: String)] = []
+    var sharedPasswords: [(id: String, website: String, username: String, password: String)] = []
     var filteredPasswords: [(id: String, website: String, username: String, password: String)] = []
     var isSearching = false
     let database = Firestore.firestore()
@@ -49,21 +64,32 @@ class PasswordsViewController: UIViewController {
     
     func fetchPasswords() {
         guard let email = currentUser?.email else { return }
-        database.collection("passwords").whereField("owner", isEqualTo: email).getDocuments { [weak self] snapshot, error in
+        
+        passwords = []
+        sharedPasswords = []
+        
+        database.collection("passwords").getDocuments { [weak self] snapshot, error in
             guard let self = self else { return }
             if let error = error {
                 print("Error fetching passwords: \(error.localizedDescription)")
                 return
             }
-            self.passwords = snapshot?.documents.compactMap { doc in
-                let data = doc.data()
-                return (
-                    id: doc.documentID,
-                    website: data["website"] as? String ?? "",
-                    username: data["username"] as? String ?? "",
-                    password: data["password"] as? String ?? ""
-                )
-            } ?? []
+            
+            for document in snapshot?.documents ?? [] {
+                let data = document.data()
+                let id = document.documentID
+                let website = data["website"] as? String ?? ""
+                let username = data["username"] as? String ?? ""
+                let password = data["password"] as? String ?? ""
+                let owner = data["owner"] as? String ?? ""
+                let sharedWith = data["sharedWith"] as? [String] ?? []
+                
+                if owner == email {
+                    self.passwords.append((id: id, website: website, username: username, password: password))
+                } else if sharedWith.contains(email) {
+                    self.sharedPasswords.append((id: id, website: website, username: username, password: password))
+                }
+            }
             self.passwordsView.tableView.reloadData()
         }
     }
@@ -141,42 +167,57 @@ extension PasswordsViewController: UISearchBarDelegate, UITableViewDelegate, UIT
         passwordsView.tableView.reloadData()
     }
     
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = ""
-        isSearching = false
-        passwordsView.tableView.reloadData()
-        searchBar.resignFirstResponder()
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 2 // Owned passwords and shared passwords
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return isSearching ? filteredPasswords.count : passwords.count
+        return section == 0 ? (isSearching ? filteredPasswords.count : passwords.count) : sharedPasswords.count
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return section == 0 ? "Your Passwords" : "Shared With You"
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "PasswordCell", for: indexPath) as! PasswordCell
-        let password = isSearching ? filteredPasswords[indexPath.row] : passwords[indexPath.row]
+        let password = indexPath.section == 0
+            ? (isSearching ? filteredPasswords[indexPath.row] : passwords[indexPath.row])
+            : sharedPasswords[indexPath.row]
+        
         cell.configure(with: password)
         
-        // Attach Delete button action
-        cell.deleteButton.tag = indexPath.row
-        cell.deleteButton.addTarget(self, action: #selector(confirmDeletePassword), for: .touchUpInside)
-        
-        // Attach Share button action
-        cell.shareButton.tag = indexPath.row
-        cell.shareButton.addTarget(self, action: #selector(navigateToSharePassword), for: .touchUpInside)
+        if indexPath.section == 0 {
+            cell.deleteButton.isHidden = false
+            cell.shareButton.isHidden = false
+            cell.deleteButton.tag = indexPath.row
+            cell.deleteButton.addTarget(self, action: #selector(confirmDeletePassword), for: .touchUpInside)
+            cell.shareButton.tag = indexPath.row
+            cell.shareButton.addTarget(self, action: #selector(navigateToSharePassword), for: .touchUpInside)
+        } else {
+            cell.deleteButton.isHidden = true
+            cell.shareButton.isHidden = true
+        }
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedPassword = isSearching ? filteredPasswords[indexPath.row] : passwords[indexPath.row]
-        let addEditVC = AddEditPasswordViewController()
-        addEditVC.currentUser = self.currentUser
-        addEditVC.passwordToEdit = selectedPassword
-        addEditVC.isEditingPassword = true
-        self.navigationController?.pushViewController(addEditVC, animated: true)
+        if indexPath.section == 0 { // Owned passwords
+            let selectedPassword = isSearching ? filteredPasswords[indexPath.row] : passwords[indexPath.row]
+            let addEditVC = AddEditPasswordViewController()
+            addEditVC.currentUser = self.currentUser
+            addEditVC.passwordToEdit = selectedPassword
+            addEditVC.isEditingPassword = true
+            self.navigationController?.pushViewController(addEditVC, animated: true)
+        } else { // Shared passwords
+            let selectedSharedPassword = sharedPasswords[indexPath.row]
+            let sharedDetailsVC = SharedPasswordDetailsViewController()
+            sharedDetailsVC.sharedPassword = selectedSharedPassword
+            self.navigationController?.pushViewController(sharedDetailsVC, animated: true)
+        }
         
-        // Deselect the row after tapping
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
+

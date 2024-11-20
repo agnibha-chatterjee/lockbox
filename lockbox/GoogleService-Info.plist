@@ -2,22 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>571005090755-om001cdf6e36rte4qbg2fco4ilvbmjfl.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.571005090755-om001cdf6e36rte4qbg2fco4ilvbmjfl</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBdovOyl5bBmuoy7WvkC8BVPD7Hj--4P54</string>
+	<string>AIzaSyC7dCj3TnEaFgCwyNYrGDNOVZSS0Vo0FG0</string>
 	<key>GCM_SENDER_ID</key>
-	<string>571005090755</string>
+	<string>335441308377</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.nuios.lockbox</string>
 	<key>PROJECT_ID</key>
-	<string>thefirst-5ae95</string>
+	<string>lockbox-app-5a37f</string>
 	<key>STORAGE_BUCKET</key>
-	<string>thefirst-5ae95.firebasestorage.app</string>
+	<string>lockbox-app-5a37f.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,8 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:571005090755:ios:619d96e3d97a5f6733db76</string>
-	<key>DATABASE_URL</key>
-	<string>https://thefirst-5ae95.firebaseio.com</string>
+	<string>1:335441308377:ios:d5572a35feca38214b6cc8</string>
 </dict>
 </plist>
