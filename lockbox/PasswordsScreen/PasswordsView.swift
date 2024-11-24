@@ -39,8 +39,8 @@ class PasswordsView: UIView {
     
     func setupAddPasswordButton() {
         addPasswordButton = UIButton(type: .system)
-        addPasswordButton.setTitle("+ Add Password", for: .normal)
-        addPasswordButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        addPasswordButton.setTitle("+", for: .normal)
+        addPasswordButton.titleLabel?.font = addPasswordButton.titleLabel?.font.withSize(30)
         addPasswordButton.backgroundColor = .blue
         addPasswordButton.tintColor = .white
         addPasswordButton.layer.cornerRadius = 25
