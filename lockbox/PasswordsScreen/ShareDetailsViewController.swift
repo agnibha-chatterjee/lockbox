@@ -4,18 +4,11 @@
 //
 //  Created by Pranav Raj on 2024-11-18.
 //
-
-//
-//  ShareDetailsViewController.swift
-//  lockbox
-//
-//  Created by Pranav Raj on 2024-11-18.
-//
-
+ 
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
-
+ 
 class ShareDetailsViewController: UIViewController {
     
     var currentUser: FirebaseAuth.User?
@@ -171,7 +164,7 @@ class ShareDetailsViewController: UIViewController {
         present(alert, animated: true)
     }
 }
-
+ 
 extension ShareDetailsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return sharedUsers.count
@@ -190,7 +183,10 @@ extension ShareDetailsViewController: UITableViewDelegate, UITableViewDataSource
         revokeButton.tag = indexPath.row
         revokeButton.addTarget(self, action: #selector(revokeButtonTapped), for: .touchUpInside)
         
+        // Set button frame explicitly to ensure it shows up
+        revokeButton.frame = CGRect(x: 0, y: 0, width: 80, height: 30)
         cell.accessoryView = revokeButton
+        
         return cell
     }
 }

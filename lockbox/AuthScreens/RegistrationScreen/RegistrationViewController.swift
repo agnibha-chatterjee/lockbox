@@ -28,6 +28,7 @@ class RegistrationViewController: UIViewController {
 
         self.navigationItem.backButtonTitle = ""
         
+        
         self.registrationView.registerBtn.addTarget(self, action: #selector(onPressRegister), for: .touchUpInside)
     }
     

@@ -44,17 +44,63 @@ class AddEditPasswordViewController: UIViewController, CLLocationManagerDelegate
     }
     
     func setupMapView() {
-        mapView.translatesAutoresizingMaskIntoConstraints = false
-        mapView.layer.cornerRadius = 8
-        mapView.showsUserLocation = true
-        view.addSubview(mapView)
-        
-        NSLayoutConstraint.activate([
-            mapView.topAnchor.constraint(equalTo: addEditPasswordView.copyButton.bottomAnchor, constant: 20),
-            mapView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            mapView.heightAnchor.constraint(equalToConstant: 300)
-        ])
+            mapView.translatesAutoresizingMaskIntoConstraints = false
+            mapView.layer.cornerRadius = 8
+            mapView.showsUserLocation = true
+            mapView.showsCompass = true
+            view.addSubview(mapView)
+            
+            // Create zoom buttons
+            let zoomStack = UIStackView()
+            zoomStack.axis = .vertical
+            zoomStack.spacing = 8
+            zoomStack.translatesAutoresizingMaskIntoConstraints = false
+            
+            let zoomInButton = UIButton(type: .system)
+            zoomInButton.setTitle("+", for: .normal)
+            zoomInButton.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+            zoomInButton.backgroundColor = .white
+            zoomInButton.layer.cornerRadius = 20
+            zoomInButton.addTarget(self, action: #selector(zoomIn), for: .touchUpInside)
+            
+            let zoomOutButton = UIButton(type: .system)
+            zoomOutButton.setTitle("-", for: .normal)
+            zoomOutButton.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+            zoomOutButton.backgroundColor = .white
+            zoomOutButton.layer.cornerRadius = 20
+            zoomOutButton.addTarget(self, action: #selector(zoomOut), for: .touchUpInside)
+            
+            [zoomInButton, zoomOutButton].forEach { button in
+                button.widthAnchor.constraint(equalToConstant: 40).isActive = true
+                button.heightAnchor.constraint(equalToConstant: 40).isActive = true
+                zoomStack.addArrangedSubview(button)
+            }
+            
+            view.addSubview(zoomStack)
+            
+            NSLayoutConstraint.activate([
+                mapView.topAnchor.constraint(equalTo: addEditPasswordView.copyButton.bottomAnchor, constant: 20),
+                mapView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+                mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+                mapView.heightAnchor.constraint(equalToConstant: 300),
+                
+                zoomStack.trailingAnchor.constraint(equalTo: mapView.trailingAnchor, constant: -16),
+                zoomStack.centerYAnchor.constraint(equalTo: mapView.centerYAnchor)
+            ])
+        }
+    
+    @objc func zoomIn() {
+        var region = mapView.region
+        region.span.latitudeDelta /= 2.0
+        region.span.longitudeDelta /= 2.0
+        mapView.setRegion(region, animated: true)
+    }
+    
+    @objc func zoomOut() {
+        var region = mapView.region
+        region.span.latitudeDelta *= 2.0
+        region.span.longitudeDelta *= 2.0
+        mapView.setRegion(region, animated: true)
     }
     
     func setupLocationManager() {

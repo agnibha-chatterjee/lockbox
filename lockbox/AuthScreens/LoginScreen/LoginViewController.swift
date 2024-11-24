@@ -27,6 +27,7 @@ class LoginViewController: UIViewController {
         
         self.title = "Login"
         self.navigationItem.backButtonTitle = ""
+        self.navigationItem.hidesBackButton = true
         
 //                do {
 //                    try Auth.auth().signOut()

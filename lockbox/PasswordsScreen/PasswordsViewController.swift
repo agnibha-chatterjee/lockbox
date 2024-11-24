@@ -41,7 +41,7 @@ class PasswordsViewController: UIViewController {
         super.viewDidLoad()
         
         title = "All Passwords"
-        
+        self.navigationItem.hidesBackButton = true
         // Set up table view
         passwordsView.tableView.delegate = self
         passwordsView.tableView.dataSource = self
