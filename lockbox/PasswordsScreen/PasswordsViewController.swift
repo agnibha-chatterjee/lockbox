@@ -33,6 +33,9 @@ class PasswordsViewController: UIViewController {
     var isSearching = false
     let database = Firestore.firestore()
     
+    var loginDeletegate: LoginViewController?
+    var registrationDelegate: RegistrationViewController?
+    
     override func loadView() {
         view = passwordsView
     }
@@ -105,6 +108,12 @@ class PasswordsViewController: UIViewController {
         do {
             try Auth.auth().signOut()
             self.navigationController?.popViewController(animated: true)
+            if let loginDelegate = self.loginDeletegate {
+                loginDelegate.hasNavigated = false
+            }
+            if let registrationDelegate = self.registrationDelegate {
+                registrationDelegate.hasNavigated = false
+            }
         } catch {
             print("Error signing out: \(error.localizedDescription)")
         }

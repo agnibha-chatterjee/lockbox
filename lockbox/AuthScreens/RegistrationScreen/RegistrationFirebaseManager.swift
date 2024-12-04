@@ -68,6 +68,7 @@ extension RegistrationViewController {
                 self.resetFields()
                 let passwordsViewController = PasswordsViewController()
                 passwordsViewController.currentUser = self.currentUser
+                passwordsViewController.registrationDelegate = self
                 self.navigationController?.pushViewController(passwordsViewController, animated: true)
             }
         }

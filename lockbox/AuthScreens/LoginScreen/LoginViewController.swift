@@ -89,6 +89,7 @@ class LoginViewController: UIViewController {
         resetFields()
         let passwordsViewController = PasswordsViewController()
         passwordsViewController.currentUser = self.currentUser
+        passwordsViewController.loginDeletegate = self
         self.navigationController?.pushViewController(passwordsViewController, animated: true)
     }
     
