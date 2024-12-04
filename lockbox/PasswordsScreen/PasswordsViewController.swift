@@ -107,13 +107,17 @@ class PasswordsViewController: UIViewController {
     @objc func logout() {
         do {
             try Auth.auth().signOut()
-            self.navigationController?.popViewController(animated: true)
+
             if let loginDelegate = self.loginDeletegate {
                 loginDelegate.hasNavigated = false
             }
             if let registrationDelegate = self.registrationDelegate {
                 registrationDelegate.hasNavigated = false
             }
+            if let loginVC = self.navigationController?.viewControllers.filter({ $0 is LoginViewController }).first {
+                self.navigationController?.popToViewController(loginVC, animated: true)
+            }
+            
         } catch {
             print("Error signing out: \(error.localizedDescription)")
         }

@@ -61,10 +61,11 @@ extension RegistrationViewController {
                     }
                 }
             }
+
+            self.delegate?.hasNavigated = true
             
             if !self.hasNavigated {
                 self.hasNavigated = true
-                self.delegate?.hasNavigated = true
                 self.resetFields()
                 let passwordsViewController = PasswordsViewController()
                 passwordsViewController.currentUser = self.currentUser

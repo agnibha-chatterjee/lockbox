@@ -42,6 +42,10 @@ class LoginViewController: UIViewController {
             if user != nil {
                 self.currentUser = user
                 
+                if self.hasNavigated {
+                    return
+                }
+                
                 if !self.hasNavigated {
                     self.hasNavigated = true
                     self.navigateToPasswordsScreen()
